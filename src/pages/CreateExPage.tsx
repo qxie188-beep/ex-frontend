@@ -142,7 +142,6 @@ export default function CreateExPage() {
     update('apiBase', modalApiBase)
     update('model', modalModel)
     setShowApiModal(false)
-    setShowApiReminder(false)
   }
 
   const toggleTag = (tag: string) =>
