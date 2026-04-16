@@ -1,5 +1,7 @@
 # WORKSPACE BRIEFING
 
+   [中文版](README.zh-CN.md)
+
 ## SNAPSHOT
 
 type: single | full-stack  
