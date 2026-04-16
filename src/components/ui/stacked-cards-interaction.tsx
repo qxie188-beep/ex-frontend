@@ -18,7 +18,7 @@ const Card = ({
   onDelete?: () => void;
 }) => {
   const [showButtons, setShowButtons] = React.useState(false);
-  const [longPressTimer, setLongPressTimer] = React.useState<NodeJS.Timeout | null>(null);
+  const [longPressTimer, setLongPressTimer] = React.useState<number | null>(null);
 
   const handleMouseDown = () => {
     const timer = setTimeout(() => {

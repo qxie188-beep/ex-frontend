@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ShaderBackground from '../components/ui/ShaderBackground'
 
@@ -15,8 +15,7 @@ export default function LandingPage() {
   }, [])
 
   const handleStart = () => {
-    // 添加入场动画效果
-    const content = document.querySelector('.landing-content')
+    const content = document.querySelector('.landing-content') as HTMLElement
     if (content) {
       content.style.opacity = '0'
       content.style.transform = 'translate(-50%, -50%) translateY(50px)'

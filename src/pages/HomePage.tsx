@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Plus, Trash2, Edit2 } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { StackedCardsInteraction } from '../components/ui/stacked-cards-interaction'
 import { API_BASE_URL } from '../config/api'
 
@@ -56,8 +56,6 @@ export default function HomePage() {
     localStorage.setItem('ex_api_base', apiBase)
     setShowApiModal(false)
   }
-
-  const needsApiKey = !localStorage.getItem('ex_api_key')
 
   return (
     <div className="container">
