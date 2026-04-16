@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Plus, Trash2, Edit2 } from 'lucide-react'
 import { StackedCardsInteraction } from '../components/ui/stacked-cards-interaction'
+import { API_BASE_URL } from '../config/api'
 
 interface ExMeta {
   slug: string
@@ -27,7 +28,7 @@ export default function HomePage() {
 
   const fetchExes = async () => {
     try {
-      const res = await fetch('http://localhost:18000/api/ex-list')
+      const res = await fetch(`${API_BASE_URL}/api/ex-list`)
       if (res.ok) {
         const data = await res.json()
         setExes(data)
@@ -44,7 +45,7 @@ export default function HomePage() {
   const handleDelete = async (slug: string) => {
     if (!confirm('确定要放下这段记忆吗？')) return
     try {
-      await fetch(`http://localhost:18000/api/ex/${slug}`, { method: 'DELETE' })
+      await fetch(`${API_BASE_URL}/api/ex/${slug}`, { method: 'DELETE' })
     } catch {}
     setExes(prev => prev.filter(e => e.slug !== slug))
     localStorage.setItem('ex_list', JSON.stringify(exes.filter(e => e.slug !== slug)))
@@ -61,80 +62,24 @@ export default function HomePage() {
   return (
     <div className="container">
       {/* 逝爱简介 */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        marginBottom: 180,
-        padding: '20px'
+      <div className="card" style={{ 
+        borderLeft: '3px solid var(--accent)', 
+        marginBottom: 180, 
+        textAlign: 'center',
+        padding: '40px 30px'
       }}>
-        <div style={{
-          position: 'relative',
-          background: 'linear-gradient(to bottom, #fffbe6 0%, #fff9e0 100%)',
-          padding: '40px 35px',
-          boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15), 0 3px 10px rgba(0, 0, 0, 0.1)',
-          transform: 'rotate(-1.5deg)',
-          maxWidth: '900px',
-          width: '100%'
-        }}>
-          {/* 左上角胶带 */}
-          <div style={{
-            position: 'absolute',
-            top: '-12px',
-            left: '30px',
-            width: '80px',
-            height: '28px',
-            background: 'linear-gradient(to bottom, #ffd54f 0%, #ffca28 50%, #ffc107 100%)',
-            opacity: 0.85,
-            transform: 'rotate(-5deg)',
-            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)'
-          }}></div>
-          
-          {/* 右上角胶带 */}
-          <div style={{
-            position: 'absolute',
-            top: '-12px',
-            right: '30px',
-            width: '80px',
-            height: '28px',
-            background: 'linear-gradient(to bottom, #ffd54f 0%, #ffca28 50%, #ffc107 100%)',
-            opacity: 0.85,
-            transform: 'rotate(5deg)',
-            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)'
-          }}></div>
-          
-          <h2 style={{ 
-            fontSize: 24, 
-            marginBottom: 20, 
-            fontFamily: 'var(--font-serif)',
-            color: '#2c3e50',
-            textAlign: 'center'
-          }}>逝爱</h2>
-          
-          <p style={{ 
-            fontSize: 15, 
-            color: '#4a4a4a', 
-            lineHeight: 2, 
-            marginBottom: 25,
-            textAlign: 'center'
-          }}>
-            记忆是一种不讲道理的存储介质。<br/>
-            你记不住高数公式，记不住车牌号，记不住今天是几号，但你清楚记得四年前的一个下午ta穿了一件白T恤站在便利店门口等你，手里拿着两根冰棍，一根给你，一根ta自己。<br/>
-            这不公平。<br/>
-            "逝爱"就是把这些不公平的记忆导出来，从生物硬盘到数字硬盘完成格式转换。<br/>
-            导完以后你或许会发现，ta也没那么好。ta也没那么差。ta就是那样一个人。会在吵完架两小时后问你吃了吗。会在纪念日那天忘了发消息然后第二天假装什么都没发生。<br/>
-            是的，此刻，阳光在江面碎成一万个夏天，闪烁，又汇聚成一个冬天。这一切在你午睡时发生，你从未察觉。
-          </p>
-          
-          <p style={{ 
-            fontSize: 15, 
-            color: '#8b5e3c', 
-            fontWeight: '600', 
-            textAlign: 'center',
-            letterSpacing: '1px'
-          }}>
-            👇 往下滑动，开始创建你的第一个记忆
-          </p>
-        </div>
+        <h2 style={{ fontSize: 20, marginBottom: 20, fontFamily: 'var(--font-serif)' }}>逝爱</h2>
+        <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.8, marginBottom: 30 }}>
+          记忆是一种不讲道理的存储介质。<br/>
+          你记不住高数公式，记不住车牌号，记不住今天是几号，但你清楚记得四年前的一个下午ta穿了一件白T恤站在便利店门口等你，手里拿着两根冰棍，一根给你，一根ta自己。<br/>
+          这不公平。<br/>
+          "逝爱"就是把这些不公平的记忆导出来，从生物硬盘到数字硬盘完成格式转换。<br/>
+          导完以后你或许会发现，ta也没那么好。ta也没那么差。ta就是那样一个人。会在吵完架两小时后问你吃了吗。会在纪念日那天忘了发消息然后第二天假装什么都没发生。<br/>
+          是的，此刻，阳光在江面碎成一万个夏天，闪烁，又汇聚成一个冬天。这一切在你午睡时发生，你从未察觉。
+        </p>
+        <p style={{ fontSize: 14, color: 'var(--accent)', fontWeight: '500', marginBottom: 20 }}>
+          👇 往下滑动，开始创建你的第一个记忆
+        </p>
       </div>
 
       {/* 新建 */}

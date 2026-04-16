@@ -106,17 +106,6 @@ async def list_exes():
     return JSONResponse(analyzer_ins.list_exes())
 
 
-@router.get("/ex/{slug}")
-async def get_ex(slug: str):
-    """获取 ex 详情"""
-    analyzer_ins = get_analyzer()
-    exes = analyzer_ins.list_exes()
-    for ex in exes:
-        if ex["slug"] == slug:
-            return JSONResponse(ex)
-    raise HTTPException(status_code=404, detail="Not found")
-
-
 @router.delete("/ex/{slug}")
 async def delete_ex(slug: str):
     """删除 ex"""

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { X, ArrowLeft, Check } from 'lucide-react'
+import { API_BASE_URL } from '../config/api'
 
 const PERSONALITY_TAGS = [
   '话痨', '闷骚', '嘴硬心软', '冷暴力', '粘人', '独立',
@@ -77,7 +78,7 @@ export default function CreateExPage() {
 
   const loadExData = async (slug: string) => {
     try {
-      const res = await fetch(`http://localhost:18000/api/ex/${slug}`)
+      const res = await fetch(`${API_BASE_URL}/api/ex/${slug}`)
       if (res.ok) {
         const data = await res.json()
         // 解析性格信息
@@ -207,13 +208,12 @@ export default function CreateExPage() {
       let res
       if (editingSlug) {
         // 编辑模式：发送PUT请求
-        res = await fetch(`http://localhost:18000/api/ex/${editingSlug}`, {
+        res = await fetch(`${API_BASE_URL}/api/ex/${editingSlug}`, {
           method: 'PUT',
           body: fd,
         })
       } else {
-        // 创建模式：发送POST请求
-        res = await fetch('http://localhost:18000/api/create-ex', {
+        res = await fetch(`${API_BASE_URL}/api/create-ex`, {
           method: 'POST',
           body: fd,
         })

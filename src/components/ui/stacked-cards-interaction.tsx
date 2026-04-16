@@ -18,43 +18,32 @@ const Card = ({
   onDelete?: () => void;
 }) => {
   const [showButtons, setShowButtons] = React.useState(false);
-  const [isHoveringButtons, setIsHoveringButtons] = React.useState(false);
-  const longPressTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const [longPressTimer, setLongPressTimer] = React.useState<NodeJS.Timeout | null>(null);
 
   const handleMouseDown = () => {
-    // 开始长按计时
-    longPressTimerRef.current = setTimeout(() => {
+    const timer = setTimeout(() => {
       setShowButtons(true);
     }, 500);
+    setLongPressTimer(timer);
   };
 
   const handleMouseUp = () => {
-    // 清除计时器（如果还没到500ms）
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
     }
   };
 
   const handleMouseLeave = () => {
-    // 只有不在按钮区域时才隐藏
-    if (!isHoveringButtons && !longPressTimerRef.current) {
-      setShowButtons(false);
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
     }
-  };
-
-  const handleButtonsMouseLeave = () => {
-    setIsHoveringButtons(false);
-    // 鼠标离开按钮区域时，也关闭按钮
     setShowButtons(false);
   };
 
-  const buttonsRef = React.useRef<HTMLDivElement>(null);
-
   return (
     <div
-      {...(className ? { className } : {})}
-      ref={buttonsRef}
       style={{
         width: "350px",
         cursor: "pointer",
@@ -67,13 +56,7 @@ const Card = ({
         position: "relative",
         ...(className ? { className } : {})
       }}
-      onClick={() => {
-        if (showButtons) {
-          setShowButtons(false);
-        } else {
-          onClick?.();
-        }
-      }}
+      onClick={onClick}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave}
@@ -133,26 +116,21 @@ const Card = ({
         }}>{children}</div>
       )}
       {showButtons && (onEdit || onDelete) && (
-        <div
-          ref={buttonsRef}
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.3)",
-            backdropFilter: "blur(8px)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 100,
-            animation: "fadeIn 0.3s ease-in-out"
-          }}
-          onMouseEnter={() => setIsHoveringButtons(true)}
-           onMouseLeave={handleButtonsMouseLeave}
-        >
+        <div style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.3)",
+          backdropFilter: "blur(8px)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 100,
+          animation: "fadeIn 0.3s ease-in-out"
+        }}>
           <div style={{
             display: "flex",
             gap: "1rem",
@@ -270,10 +248,6 @@ const StackedCardsInteraction = ({
               xOffset = spreadDistance;
               rotation = rotationAngle;
             }
-          } else if (limitedCards.length === 1) {
-            // 单个卡片也添加轻微的悬浮效果
-            xOffset = isHovering ? 0 : 0;
-            rotation = isHovering ? 0 : 0;
           }
 
           return (
@@ -282,11 +256,11 @@ const StackedCardsInteraction = ({
               style={{
                 position: "absolute",
                 zIndex: isFirst ? 10 : 0,
-                transform: `translateX(${isHovering ? xOffset : 0}px) rotate(${isHovering ? rotation : 0}deg) scale(${isFirst && isHovering ? 1.05 : 1})`,
+                transform: `translateX(${isHovering ? xOffset : 0}px) rotate(${isHovering ? rotation : 0}deg)`,
                 transition: `transform 0.3s ease-in-out ${index * animationDelay}s`
               }}
-              onMouseEnter={() => setIsHovering(true)}
-              onMouseLeave={() => setIsHovering(false)}
+              onMouseEnter={() => isFirst && setIsHovering(true)}
+              onMouseLeave={() => isFirst && setIsHovering(false)}
             >
               <Card
                 image={card.image || undefined}

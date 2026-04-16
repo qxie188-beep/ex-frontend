@@ -110,29 +110,8 @@ class ExAnalyzer:
         model: str,
     ) -> str:
         """对话"""
-        # 如果会话不在内存中，尝试从磁盘加载
         if session_id not in self.sessions:
-            ex_dir = os.path.join(self.exes_dir, session_id)
-            memory_path = os.path.join(ex_dir, "memory.md")
-            persona_path = os.path.join(ex_dir, "persona.md")
-            meta_path = os.path.join(ex_dir, "meta.json")
-            
-            if os.path.exists(memory_path) and os.path.exists(persona_path):
-                with open(memory_path, encoding="utf-8") as f:
-                    memory_md = f.read()
-                with open(persona_path, encoding="utf-8") as f:
-                    persona_md = f.read()
-                with open(meta_path, encoding="utf-8") as f:
-                    meta = json.load(f)
-                
-                name = meta.get("name", session_id)
-                self.sessions[session_id] = {
-                    "name": name,
-                    "memory": memory_md,
-                    "persona": persona_md,
-                }
-            else:
-                raise ValueError(f"Session {session_id} not found")
+            raise ValueError(f"Session {session_id} not found")
 
         session = self.sessions[session_id]
         persona = session["persona"]
@@ -181,7 +160,7 @@ class ExAnalyzer:
                     }
                 ],
                 "temperature": 0.8,
-                "thinking": False
+                "thinking": True
             }
             
             response = requests.post(url, headers=headers, json=data)
@@ -194,7 +173,7 @@ class ExAnalyzer:
                 if block.get("type") == "text":
                     answer += block.get("text", "")
                 elif block.get("type") == "thinking":
-                    # 跳过思考内容
+                    # 可选：处理思考内容
                     pass
         else:
             # 使用 OpenAI API 格式
@@ -216,10 +195,6 @@ class ExAnalyzer:
             response.raise_for_status()
             result = response.json()
             answer = result["choices"][0]["message"]["content"]
-        
-        # 过滤掉思考过程标签
-        import re
-        answer = re.sub(r'<think>.*?</think>', '', answer, flags=re.DOTALL).strip()
         
         return answer
 
@@ -385,7 +360,7 @@ class ExAnalyzer:
                     }
                 ],
                 "temperature": 0.7,
-                "thinking": False
+                "thinking": True
             }
             
             response = requests.post(url, headers=headers, json=data)
@@ -398,22 +373,41 @@ class ExAnalyzer:
                 if block.get("type") == "text":
                     content += block.get("text", "")
         else:
-            # 使用 OpenAI API 格式（直接HTTP请求，避免代理问题）
-            url = f"{resolved_base}/chat/completions"
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {api_key}"
-            }
-            data = {
-                "model": resolved_model,
-                "messages": [{"role": "user", "content": prompt}],
-                "temperature": 0.7,
-            }
+            # 使用 OpenAI API 格式
+            from openai import OpenAI
+            import os
+            # 保存原始环境变量
+            original_proxy = os.environ.get('OPENAI_PROXY')
+            original_http_proxy = os.environ.get('HTTP_PROXY')
+            original_https_proxy = os.environ.get('HTTPS_PROXY')
             
-            response = requests.post(url, headers=headers, json=data)
-            response.raise_for_status()
-            result = response.json()
-            content = result["choices"][0]["message"]["content"]
+            try:
+                # 临时移除可能影响的环境变量
+                if 'OPENAI_PROXY' in os.environ:
+                    del os.environ['OPENAI_PROXY']
+                if 'HTTP_PROXY' in os.environ:
+                    del os.environ['HTTP_PROXY']
+                if 'HTTPS_PROXY' in os.environ:
+                    del os.environ['HTTPS_PROXY']
+                
+                # 只传递必要的参数
+                client = OpenAI(api_key=api_key, base_url=resolved_base)
+            finally:
+                # 恢复原始环境变量
+                if original_proxy is not None:
+                    os.environ['OPENAI_PROXY'] = original_proxy
+                if original_http_proxy is not None:
+                    os.environ['HTTP_PROXY'] = original_http_proxy
+                if original_https_proxy is not None:
+                    os.environ['HTTPS_PROXY'] = original_https_proxy
+
+            response = client.chat.completions.create(
+                model=resolved_model,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.7,
+            )
+
+            content = response.choices[0].message.content
 
         # 分割两部分
         parts = content.split("---MEMORY---")

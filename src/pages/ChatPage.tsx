@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { ArrowLeft, Mic, MicOff, SendHorizonal } from 'lucide-react'
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition'
+import { API_BASE_URL } from '../config/api'
 
 interface Message {
   role: 'user' | 'ex'
@@ -28,7 +29,7 @@ export default function ChatPage() {
 
   const apiKey = localStorage.getItem('ex_api_key') || ''
   const apiBase = localStorage.getItem('ex_api_base') || 'https://api.openai.com/v1'
-  const model = localStorage.getItem('ex_api_model') || 'gpt-4o-mini'
+  const model = localStorage.getItem('ex_model') || 'gpt-4o-mini'
 
   const { isListening, startListening, stopListening, transcript, resetTranscript } = useSpeechRecognition()
 
@@ -37,10 +38,9 @@ export default function ChatPage() {
     if (!slug) return
 
     // 尝试从后端获取 meta
-    fetch(`http://localhost:18000/api/ex-list`)
+    fetch(`${API_BASE_URL}/api/ex-list`)
       .then(r => r.json())
       .then((list: ExMeta[]) => {
-        if (!Array.isArray(list)) return
         const found = list.find((e: ExMeta) => e.slug === slug)
         if (found) {
           setMeta(found)
@@ -75,7 +75,7 @@ export default function ChatPage() {
     setLoading(true)
 
     try {
-      const res = await fetch('http://localhost:18000/api/chat', {
+      const res = await fetch(`${API_BASE_URL}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({

@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
 
-app = FastAPI(title="逝爱 API", version="1.0.0")
+app = FastAPI(title="前任.skill API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
