@@ -52,7 +52,6 @@ export default function CreateExPage() {
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState('')
   const [editingSlug, setEditingSlug] = useState<string | null>(null)
-  const [showApiReminder, setShowApiReminder] = useState(true)
   const [showApiModal, setShowApiModal] = useState(true)
   const [showPhotoModal, setShowPhotoModal] = useState(false)
   const [modalApiKey, setModalApiKey] = useState('')
@@ -143,7 +142,6 @@ export default function CreateExPage() {
     update('apiBase', modalApiBase)
     update('model', modalModel)
     setShowApiModal(false)
-    setShowApiReminder(false)
   }
 
   const toggleTag = (tag: string) =>
